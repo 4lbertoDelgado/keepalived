@@ -1,0 +1,16 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+STATEFILE=/var/run/kafka-ha-keepalived.state
+
+if [ -s "$STATEFILE" ]; then
+    . "$STATEFILE"
+    case "$STATE" in
+        "BACKUP"|"MASTER"|"FAULT")
+                service kafka-rest status
+                exit $?
+                ;;
+        *|"")
+                logger -t kafka-ha-keepalived "Unknown state: '$STATE'"
+                exit

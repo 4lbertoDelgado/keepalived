@@ -1,0 +1,28 @@
+#!/bin/sh
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+umask 022
+
+TYPE=$1
+NAME=$2
+STATE=$3
+
+STATEFILE=/var/run/kafka-ha-keepalived.state
+
+logger -t kafka-ha-keepalived "Transition to state '$STATE' on VRRP instance '$NAME'."
+
+case $STATE in
+        "MASTER")
+                  service kafka-rest start ||:
+                  echo "STATE=$STATE" > $STATEFILE
+                  exit 0
+                  ;;
+        "BACKUP"|"FAULT")
+                  echo "STATE=$STATE" > $STATEFILE
+                  exit 0
+                  ;;
+        *)        logger -t kafka-ha-keepalived "Unknown state: '$STATE'"
+                  exit 1
+                  ;;
+esac
