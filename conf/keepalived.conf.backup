@@ -5,9 +5,13 @@ global_defs {
         vrrp_version 3
 }
 
+#Declaracion de una funcion que ejecuta un script
 vrrp_script chk_manual_failover {
+        #Seleccion del script
         script "/usr/libexec/keepalived/kafka-ha-manual-failover"
+        #Cada cuanto se realizara su ejecucion en segundos
         interval 10
+        #Peso que indica la prioridad de ejecucion
         weight 50
 }
 
@@ -20,20 +24,27 @@ vrrp_script chk_restapi_service {
 
 
 vrrp_instance VI_1 {
+        #Estado inicial del nodo
         state BACKUP
+        #Interface de red que usara
         interface ens160
+        #Peso de prioridad del nodo
         priority 100
         virtual_router_id 51
         advert_int 1
         accept
+        #Indicamos la ip principal del nodo
         unicast_src_ip 192.168.56.101
         unicast_peer {
+                #Indicamos las ips de los otros nodos
                 192.168.56.145
         }
         virtual_ipaddress {
+                Indicamos la ip de la virtual
                 192.168.56.152
         }
         track_script {
+                #Indicamos los scripts a ejecutar
                 chk_restapi_service
                 chk_manual_failover
         }
